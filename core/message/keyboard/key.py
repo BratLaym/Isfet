@@ -1,6 +1,6 @@
 class Key:
-    def __init__(self, text: str, callback_data: str) -> None:
-        self._data = {
+    def __init__(self, text: str, callback_data: str = "") -> None:
+        self._data: dict[str, str] = {
             "text": text,
             "callback_data": callback_data
         }
@@ -11,6 +11,11 @@ class Key:
     def setCallback_data(self, callback_data: str) -> None:
         self._data["callback_data"] = str(callback_data)
         
-    def getDict(self) -> dict[str, str]:
+    def getInlineKey(self) -> dict[str, str]:
         return self._data
+    
+    def getReplyKey(self) -> dict[str, str]:
+        return {
+            "text": self._data["text"]
+        }
         
