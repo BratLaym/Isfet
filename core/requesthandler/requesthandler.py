@@ -1,63 +1,89 @@
+import sqlite3
 from core.message.message import Message
 from core.cmd.command import Command
 from core.module.registerModules import RegisterModules
+from core.patern.singleton import Singleton
+from core.requesthandler.update import Update
+from core.requesthandler.connection import Connection
 
 
-class RequestHanler: 
+class RequestHanler(metaclass=Singleton):
     """Обработчик запросов
     """
     def __init__(self) -> None:
         # реестор модулей
-        self._modules = RegisterModules()
-    
-    def processing(self, update: dict) -> list[Message]:
-        cmd: Command
-        data: dict[str, str | int] 
-        
-        # определяем команду и пользователя
-        cmd, data = self._configurateCommand(update)
-        # user = self.configurateUser(update)
-        return self._cmd_executions(cmd, data)
-    
-    def _configurateUser(self):
-        pass
-        
-    # определение команды
-    def _configurateCommand(self, update: dict[str, str | dict]) -> tuple[Command, dict[str, str | int]]:
-        cmd: str
-        data = dict[str, str | int]
+        self._modules: RegisterModules = RegisterModules()
 
-        # обрабатываем по разному handwritten и callback
-        if (update.get("callback_query")):
-            cmd = self._modules.findCommand(update["callback_query"]["data"], False)
-            data =  {
-                "text": update["callback_query"]["data"],
-                "msg_id": int(update["callback_query"]["message"]["message_id"]),
-                "chat_id": int(update["callback_query"]["message"]["chat"]["id"])
-            }
+    def processing(self, update: Update) -> list[Message]:
+        cmd: Command
+
+        connection: Connection = Connection()
+        session: sqlite3.Cursor = connection.create_session()
+
+        # определяем команду и пользователя
+        cmd = self._configurate(update, session)
+        result: list[Message] = self._cmd_executions(
+            cmd,
+            update,
+            session
+        )
+        connection.commit()
+        return result
+
+    # определение команды
+    def _configurate(
+        self,
+        update: Update,
+        session: sqlite3.Cursor
+    ) -> Update:
+        query: str = "SELECT verefity, default_func \
+            FROM user WHERE chat_id =  ?"
+
+        select_result: sqlite3.Cursor = session.execute(
+            query,
+            (update.chat_id, )
+        ).fetchone()
+
+        default: str = "menu"
+        if (select_result):
+            update.verifity = select_result[0]
+            default = select_result[1]
         else:
-            # cmd = self._modules.findCommand(update["message"]["text"], True)
-            def plug(data) -> list[Message]:
-                return [
-                    Message(
-                        data["text"],
-                        data["chat_id"]
-                    )
-                ]
-            cmd = Command("plug", "", plug)
-            data =  {
-                "text": update["message"]["text"],
-                "msg_id": int(update["message"]["message_id"]),
-                "chat_id": int(update["message"]["chat"]["id"])
-            }
-        return cmd, data
-                    
+            query = "INSERT INTO user (verefity, chat_id, tg, default_func) \
+                VALUES (?, ?, ?, ?)"
+            session.execute(
+                query,
+                (
+                    update.verifity,
+                    update.chat_id,
+                    update.user_tg,
+                    default
+                )
+            )
+
+        value: str
+        if (update.data[0] == '/'):
+            value = update.data[1:]
+        else:
+            value = default
+
+        cmd: Command = self._modules.findCommand(
+            value,
+            update.handwritten
+            )
+        return cmd
+
     def _verify_access(self, user, cmd) -> bool:
         # получаем список ролей с доступом
         # получаем список ролей пользователя
         # возращаем факт песечения списков
-        return True 
-    
-    def _cmd_executions(self, cmd: Command, data: dict[str, str | int]) -> list[Message]:
+        return True
+
+    def _cmd_executions(
+        self,
+        cmd: Command,
+        data: Update,
+        session: sqlite3.Cursor
+    ) -> list[Message]:
         # вызываем логику команды и возращаем результат
-        return cmd.execution(data)
+        return cmd.execution(data, session)
