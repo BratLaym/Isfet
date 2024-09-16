@@ -1,9 +1,8 @@
 from core.message.keyboard.key import Key
-from core.message.keyboard.keyBoard import KeyBoard
 from json import dumps
 
 
-class ReplyKeyBoard(KeyBoard):
+class ReplyKeyBoard:
     def __init__(
         self,
         keyboard: list[list[Key]],
@@ -12,10 +11,17 @@ class ReplyKeyBoard(KeyBoard):
         one_time_keyboard: bool = False,
     ) -> None:
 
-        super().__init__(keyboard)
-        self._is_persistent: bool = is_persistent,
-        self._resize_keyboard: bool = resize_keyboard,
+        self._is_persistent: bool = is_persistent
+        self._resize_keyboard: bool = resize_keyboard
         self._one_time_keyboard: bool = one_time_keyboard
+        self._keyboard: list[list[Key]] = keyboard
+
+    def appendKeyboard(self, *keyboard_lines: list[Key]):
+        for keyboard_line in keyboard_lines:
+            self._keyboard.append(keyboard_line)
+
+    def setKeyboard(self, *keyboard_lines: list[Key]):
+        self._keyboard = keyboard_lines
 
     def compile(self) -> list[list[dict[str]: str]]:
         keyBoard = [
@@ -26,9 +32,14 @@ class ReplyKeyBoard(KeyBoard):
             for row in self._keyboard
         ]
 
-        return dumps({
-            "keyboard": keyBoard,
-            "is_persistent": self._is_persistent,
-            "resize_keyboard": self._resize_keyboard,
-            "one_time_keyboard": self._one_time_keyboard
-        })
+        if (keyBoard.__len__()):
+            return dumps({
+                "keyboard": keyBoard,
+                "is_persistent": self._is_persistent,
+                "resize_keyboard": self._resize_keyboard,
+                "one_time_keyboard": self._one_time_keyboard
+            })
+        else:
+            return dumps({
+                "remove_keyboard": True
+            })

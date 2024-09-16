@@ -1,12 +1,12 @@
 from core.controller.controller import Controller
 import sys
 import sqlite3
-from configuration import TABLES
+from main.configuration import TABLES, MODULES
 
 
 def runbot():
     createdb()
-    bot = Controller()
+    bot = Controller(MODULES)
     bot.startPiling()
 
 

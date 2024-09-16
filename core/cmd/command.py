@@ -13,14 +13,14 @@ class Command:
     def __init__(
         self,
         definition: str,
-        handwritten: bool,
         logic: Callable[[Update, sqlite3.Cursor],
-                        list[Message]]
+                        list[Message] | Message],
+        handwritten: bool = None
                 ) -> None:
         self._regx: str = definition
         self._handwritten: bool | None = handwritten
         self._logic: Callable[[Update, sqlite3.Cursor],
-                              list[Message]] = logic
+                              list[Message] | Message] = logic
 
     def test(self, value: str, handwritten: bool) -> bool:
         """
@@ -42,5 +42,5 @@ class Command:
         self,
         data: Update,
         session: sqlite3.Cursor
-    ) -> list[Message]:
+    ) -> list[Message] | Message:
         return self._logic(data, session)

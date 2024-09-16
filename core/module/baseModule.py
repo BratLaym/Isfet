@@ -6,6 +6,9 @@ from core.requesthandler.update import Update
 
 
 class Module:
+    """
+    обязательно свойство _commands
+    """
     def __init__(self) -> None:
         # иницилизируем команды
         self._commands: list[Command] = []
@@ -19,7 +22,7 @@ class Module:
 
 class BaseModule(Module):
     def __init__(self) -> None:
-        self.default_cmd = Command(r".*", None, self.logic_perrot)
+        self.default_cmd = Command(r".*", self.logic_perrot, None)
         self._commands: list[Command] = [
             self.default_cmd
         ]
@@ -29,4 +32,4 @@ class BaseModule(Module):
         data: Update,
         sesion: sqlite3.Cursor
     ) -> list[Message]:
-        return [Message(data.data, data.chat_id)]
+        return [Message("Произошла ошибка", data.chat_id)]

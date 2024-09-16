@@ -3,21 +3,21 @@ from core.cmd.command import Command
 
 
 class RegisterModules:
-    def __init__(self) -> None:
+    def __init__(self, modules: dict[str, Module]) -> None:
         # иниацилизируем модули
         self._base_module = BaseModule()
-        self._modules: list[Module] = [
-            self._base_module
-        ]
+        self._modules: dict[str, Module] = dict()
+        for area in modules:
+            print(modules[area])
+            self._modules[area] = modules[area]()
 
     def findCommand(
         self,
+        area: str,
         value: str,
-        handwritten: bool,
-        defoult: str = ""
+        handwritten: bool
     ) -> Command:
-        for module in self._modules:
-            result = module.findCommand(value, handwritten)
-            if (result is not None):
-                return result
+        result = self._modules[area].findCommand(value, handwritten)
+        if (result is not None):
+            return result
         return self._base_module.default_cmd

@@ -1,5 +1,5 @@
-from core.message.keyboard.inlineKeyBoard import InlineKeyBoard
 from core.message.keyboard.replyKeyBoard import ReplyKeyBoard
+from core.message.keyboard.inlineKeyBoard import InlineKeyBoard
 from urllib.parse import urlencode
 
 
@@ -8,7 +8,7 @@ class Message:
         self,
         text: str,
         chat_id: int,
-        keyboard: InlineKeyBoard | ReplyKeyBoard | None = None
+        keyboard: ReplyKeyBoard | InlineKeyBoard | None = None
     ) -> None:
         self._text = text
         self._caht_id = chat_id

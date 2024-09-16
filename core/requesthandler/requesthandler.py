@@ -5,14 +5,15 @@ from core.module.registerModules import RegisterModules
 from core.patern.singleton import Singleton
 from core.requesthandler.update import Update
 from core.requesthandler.connection import Connection
+from core.module.baseModule import Module
 
 
 class RequestHanler(metaclass=Singleton):
     """Обработчик запросов
     """
-    def __init__(self) -> None:
+    def __init__(self, modules: dict[str, Module]) -> None:
         # реестор модулей
-        self._modules: RegisterModules = RegisterModules()
+        self._modules: RegisterModules = RegisterModules(modules)
 
     def processing(self, update: Update) -> list[Message]:
         cmd: Command
@@ -35,29 +36,31 @@ class RequestHanler(metaclass=Singleton):
         self,
         update: Update,
         session: sqlite3.Cursor
-    ) -> Update:
-        query: str = "SELECT verefity, default_func \
+    ) -> Command:
+        query: str = "SELECT verefity, area \
             FROM user WHERE chat_id =  ?"
 
         select_result: sqlite3.Cursor = session.execute(
             query,
             (update.chat_id, )
         ).fetchone()
+        area: str = "Authorization"
 
-        default: str = "menu"
         if (select_result):
             update.verifity = select_result[0]
-            default = select_result[1]
+            area = select_result[1]
         else:
-            query = "INSERT INTO user (verefity, chat_id, tg, default_func) \
-                VALUES (?, ?, ?, ?)"
+            query = """INSERT INTO user (
+                verefity, chat_id, tg, area
+                )
+                VALUES (?, ?, ?, ?)"""
             session.execute(
                 query,
                 (
                     update.verifity,
                     update.chat_id,
                     update.user_tg,
-                    default
+                    area
                 )
             )
 
@@ -65,9 +68,10 @@ class RequestHanler(metaclass=Singleton):
         if (update.data[0] == '/'):
             value = update.data[1:]
         else:
-            value = default
+            value = update.data
 
         cmd: Command = self._modules.findCommand(
+            area,
             value,
             update.handwritten
             )
@@ -86,4 +90,7 @@ class RequestHanler(metaclass=Singleton):
         session: sqlite3.Cursor
     ) -> list[Message]:
         # вызываем логику команды и возращаем результат
-        return cmd.execution(data, session)
+        result: Message | list[Message] = cmd.execution(data, session)
+        if (isinstance(result, Message)):
+            return [result]
+        return result

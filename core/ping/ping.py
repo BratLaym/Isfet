@@ -14,7 +14,6 @@ class Ping:
         self.last_update_id = 0
 
     def getValue(self) -> dict[str, str | dict]:
-        print(self.telegrmUrlUpdates + str(self.last_update_id))
         update = urlopen(
             self.telegrmUrlUpdates + str(self.last_update_id)
         ).read()
