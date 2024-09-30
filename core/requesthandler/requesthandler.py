@@ -1,96 +1,53 @@
-import sqlite3
-from core.message.message import Message
-from core.cmd.command import Command
-from core.module.registerModules import RegisterModules
-from core.patern.singleton import Singleton
-from core.requesthandler.update import Update
-from core.requesthandler.connection import Connection
-from core.module.baseModule import Module
+from typing import Any
+from core.controll_data.controller_data import ControllerData
+from core.controll_data.session import Session
+from core.requesthandler.definerPosition import DefinerPosition
+from core.utilities.event import Event
+from core.utilities.message.message import Message
+from core.utilities.scripts.script import Script
+from core.utilities.singleton import Singleton
+from core.utilities.scripts.collection import Collection
 
 
 class RequestHanler(metaclass=Singleton):
-    """Обработчик запросов
-    """
-    def __init__(self, modules: dict[str, Module]) -> None:
-        # реестор модулей
-        self._modules: RegisterModules = RegisterModules(modules)
+    def processing(self, event: dict[str, Any]) \
+            -> list[Message]:
+        event: Event = Event(event)
+        session: Session = ControllerData().create_session()
 
-    def processing(self, update: Update) -> list[Message]:
-        cmd: Command
-
-        connection: Connection = Connection()
-        session: sqlite3.Cursor = connection.create_session()
-
-        # определяем команду и пользователя
-        cmd = self._configurate(update, session)
-        result: list[Message] = self._cmd_executions(
-            cmd,
-            update,
+        script: Script = self._configurate(event, session)
+        result: list[Message] = self._executions(
+            script,
+            event,
             session
         )
-        connection.commit()
+        ControllerData().commit()
         return result
 
-    # определение команды
     def _configurate(
         self,
-        update: Update,
-        session: sqlite3.Cursor
-    ) -> Command:
-        query: str = "SELECT verefity, area \
-            FROM user WHERE chat_id =  ?"
+        event: Event,
+        session: Session
+    ) -> Script:
+        document: str | None = None
+        frame: str | None = None
+        document, frame = DefinerPosition().define(event, session)
 
-        select_result: sqlite3.Cursor = session.execute(
-            query,
-            (update.chat_id, )
-        ).fetchone()
-        area: str = "Authorization"
+        event.data = event.data.replace('/', "")
 
-        if (select_result):
-            update.verifity = select_result[0]
-            area = select_result[1]
-        else:
-            query = """INSERT INTO user (
-                verefity, chat_id, tg, area
-                )
-                VALUES (?, ?, ?, ?)"""
-            session.execute(
-                query,
-                (
-                    update.verifity,
-                    update.chat_id,
-                    update.user_tg,
-                    area
-                )
-            )
+        script: Script = Collection().find(
+            document
+        ).find(frame, event.data, event.handwritten)
+        return script
 
-        value: str
-        if (update.data[0] == '/'):
-            value = update.data[1:]
-        else:
-            value = update.data
-
-        cmd: Command = self._modules.findCommand(
-            area,
-            value,
-            update.handwritten
-            )
-        return cmd
-
-    def _verify_access(self, user, cmd) -> bool:
-        # получаем список ролей с доступом
-        # получаем список ролей пользователя
-        # возращаем факт песечения списков
-        return True
-
-    def _cmd_executions(
+    def _executions(
         self,
-        cmd: Command,
-        data: Update,
-        session: sqlite3.Cursor
+        script: Script,
+        event: Event,
+        session: Session
     ) -> list[Message]:
-        # вызываем логику команды и возращаем результат
-        result: Message | list[Message] = cmd.execution(data, session)
+
+        result: Message | list[Message] = script.execution(event, session)
         if (isinstance(result, Message)):
             return [result]
         return result

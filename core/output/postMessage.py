@@ -1,10 +1,11 @@
 from os import environ
 from dotenv import load_dotenv, find_dotenv
 from urllib.request import urlopen
-from core.message.message import Message
+from core.utilities.singleton import Singleton
+from core.utilities.message.message import Message
 
 
-class PostMessage:
+class PostMessages(metaclass=Singleton):
     def __init__(self) -> None:
         load_dotenv(find_dotenv())
         self.telegrmUrl: str = environ.get("TELEGRAM_BOT_ROOT_URL")
@@ -12,6 +13,6 @@ class PostMessage:
             environ.get("DEBUG").lower() in ["1", "true", "t", "y", "yes"]
         )
 
-    def sendMessage(self, *messages: Message) -> None:
+    def sendMessages(self, messages: list[Message]) -> None:
         for message in messages:
-            urlopen(self.telegrmUrl + "/sendMessage", message.compile())
+            urlopen(self.telegrmUrl + message.method(), message.compile())

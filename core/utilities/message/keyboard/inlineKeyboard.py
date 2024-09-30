@@ -1,8 +1,8 @@
-from core.message.keyboard.key import Key
+from core.utilities.message.keyboard.key import Key
 from json import dumps
 
 
-class InlineKeyBoard:
+class InlineKeyboard:
     def __init__(
         self,
         keyboard: list[list[Key]] = [],

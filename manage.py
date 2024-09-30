@@ -1,35 +1,17 @@
 from core.controller.controller import Controller
 import sys
-import sqlite3
-from main.configuration import TABLES, MODULES
+from main.configuration import configurate, TABLES
 
 
 def runbot():
-    createdb()
-    bot = Controller(MODULES)
-    bot.startPiling()
-
-
-def dropdb():
-    con: sqlite3.Connection = sqlite3.connect("data/Isfet.db")
-    cur: sqlite3.Cursor = con.cursor()
-    cur.execute("DROP TABLE user")
-    con.commit()
-
-
-def createdb():
-    con: sqlite3.Connection = sqlite3.connect("data/Isfet.db")
-    cur: sqlite3.Cursor = con.cursor()
-    for name, table in TABLES.items():
-        cur.execute(f"CREATE TABLE IF NOT EXISTS {name} ({table});")
-    con.commit()
+    configurate()
+    bot = Controller(TABLES)
+    bot.runbot()
 
 
 if (__name__ == "__main__"):
     cmd = {
         "runbot": runbot,
-        "dropdb": dropdb,
-        "createdb": createdb
     }
     if (sys.argv.__len__() == 1):
         print("plug")

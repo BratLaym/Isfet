@@ -1,5 +1,5 @@
-from core.message.keyboard.replyKeyBoard import ReplyKeyBoard
-from core.message.keyboard.inlineKeyBoard import InlineKeyBoard
+from core.utilities.message.keyboard.replyKeyboard import ReplyKeyboard
+from core.utilities.message.keyboard.inlineKeyboard import InlineKeyboard
 from urllib.parse import urlencode
 
 
@@ -8,11 +8,13 @@ class Message:
         self,
         text: str,
         chat_id: int,
-        keyboard: ReplyKeyBoard | InlineKeyBoard | None = None
+        keyboard: ReplyKeyboard | InlineKeyboard | None = None,
+        msg_id: int | None = None
     ) -> None:
         self._text = text
         self._caht_id = chat_id
         self._keyboard = keyboard
+        self.msg_id = msg_id
 
     def compile(self) -> str:
         message = {
@@ -25,3 +27,8 @@ class Message:
 
         message = urlencode(message).encode()
         return message
+
+    def method(self) -> str:
+        if (self.msg_id is None):
+            return "/sendMessage"
+        return "/editMessageText"

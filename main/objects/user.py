@@ -1,4 +1,16 @@
 class User:
+    sql = """"id"	INTEGER NOT NULL UNIQUE,
+"verefity"  BOOLEAN NOT NULL DEFAULT FALSE,
+"chat_id"	INTEGER NOT NULL UNIQUE,
+"tg"	TEXT NOT NULL UNIQUE,
+"doc" TEXT NOT NULL DEFAULT 'Root',
+"name"  TEXT,
+"gender"    TEXT,
+"letter_class"  TEXT,
+"block"	INTEGER,
+"room"	TEXT,
+PRIMARY KEY("id")"""
+
     def __init__(
         self,
         id_: int,
