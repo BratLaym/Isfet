@@ -1,4 +1,3 @@
-from typing import Any
 from core.controll_data.controller_data import ControllerData
 from core.controll_data.session import Session
 from core.requesthandler.definerPosition import DefinerPosition
@@ -10,9 +9,8 @@ from core.utilities.scripts.collection import Collection
 
 
 class RequestHanler(metaclass=Singleton):
-    def processing(self, event: dict[str, Any]) \
+    def processing(self, event: Event) \
             -> list[Message]:
-        event: Event = Event(event)
         session: Session = ControllerData().create_session()
 
         script: Script = self._configurate(event, session)

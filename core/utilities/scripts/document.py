@@ -11,12 +11,13 @@ class Document(metaclass=Singleton):
         self,
         name: str = "default_doc",
         frames: dict[str, Frame] | list[Frame] = [],
-        start_script: Script = Script()
+        start_script: Script = Script(),
+        default_frame: Frame = Frame()
     ) -> None:
         self.name = name
         self._frames: dict[str, Frame] = dict()
-        self._default_frame: Frame = Frame()
-        self._start_script: Script = start_script
+        self._default_frame: Frame = default_frame
+        self.start_script: Script = start_script
 
         if (isinstance(frames, dict)):
             self._frames = frames
@@ -32,13 +33,13 @@ class Document(metaclass=Singleton):
         frame: str | None = None,
         value: str = "",
         handwritten: bool | None = None
-     ) -> Frame:
+     ) -> Script:
         if (frame is None):
-            return self._start_script
+            return self.start_script
         result: Frame | None = self._frames.get(frame)
         if (result is None):
             result = self._default_frame
         return result.find(value, handwritten)
 
     def start(self, event: Event, session: Session) -> list[Message] | Message:
-        return self._start_script.execution(event, session)
+        return self.start_script.execution(event, session)

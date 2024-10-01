@@ -4,6 +4,7 @@ from dotenv import load_dotenv, find_dotenv
 from urllib.request import urlopen
 from json import loads
 
+from core.utilities.event import Event
 from core.utilities.singleton import Singleton
 
 
@@ -26,4 +27,6 @@ class Piling(metaclass=Singleton):
                 continue
             data = data[0]
             self.last_update_id = data["update_id"] + 1
-            yield data
+            res: Event = Event(data)
+            if (not res.error):
+                yield res

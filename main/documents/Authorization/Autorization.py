@@ -124,6 +124,10 @@ from core.utilities.message.keyboard.replyKeyboard import ReplyKeyboard
 from core.utilities.message.message import Message
 from core.utilities.scripts.document import Document
 from core.utilities.scripts.script import Script
+from main.documents.Authorization.inputClass import InputClass
+from main.documents.Authorization.inputGender import InputGender
+from main.documents.Authorization.inputName import InputName
+from main.documents.Authorization.inputRoom import InputRoom
 from main.documents.Authorization.sub_menu import SubMenu
 from main.objects.user import User
 
@@ -134,6 +138,10 @@ class Authorization(Document):
             "Authorization",
             [
                 SubMenu(),
+                InputName(self),
+                InputGender(self),
+                InputRoom(self),
+                InputClass(self)
             ],
             Script(self._logic_start)
         )
@@ -169,6 +177,8 @@ class Authorization(Document):
 
         if (full_form):
             keyboard.appendKeyboard([Key("Сохранить")])
+
+        session.set(event.chat_id, "frame", "sub_menu")
 
         text_msg += "Введите данные:"
         return Message(text_msg, event.chat_id, keyboard)

@@ -5,7 +5,7 @@ from json import dumps
 class ReplyKeyboard:
     def __init__(
         self,
-        keyboard: list[list[Key]],
+        keyboard: list[list[Key]] = [],
         is_persistent: bool = False,
         resize_keyboard: bool = False,
         one_time_keyboard: bool = False,
