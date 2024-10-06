@@ -1,0 +1,2 @@
+GIVE_ROLE = 1
+VEREFITY = 2

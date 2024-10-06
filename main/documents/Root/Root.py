@@ -4,6 +4,8 @@ from core.utilities.message.message import Message
 from core.utilities.scripts.document import Document
 from core.utilities.scripts.script import Script
 from main.documents.Authorization.Autorization import Authorization
+from main.documents.Menu.Menu import Menu
+from main.documents.WaitVerefity.WaitVerefity import WaitVerefity
 
 
 class Root(Document):
@@ -19,7 +21,7 @@ class Root(Document):
         session: Session
     ) -> list[Message] | Message:
         verefity: tuple[int] | int | None = session.execute(
-            """SELECT verefity FROM user
+            """SELECT verefity FROM users
             WHERE chat_id = ?""",
             (event.chat_id,)
         ).fetchone()
@@ -27,12 +29,15 @@ class Root(Document):
         if (isinstance(verefity, tuple)):
             verefity = verefity[0]
 
-        if (verefity):
-            return Message("plug", event.chat_id)
-        else:
+        if (verefity is None):
             session.execute(
-                """INSERT INTO user (verefity, chat_id, tg)
+                """INSERT INTO users (verefity, chat_id, tg)
                 VALUES (0, ?, ?)""",
                 (event.chat_id, event.user_tg)
             )
             return Authorization().start(event, session)
+        if (verefity == 1):
+            return Menu().start(event, session)
+        if (verefity == -1):
+            return WaitVerefity.start(event, session)
+        return Authorization().start(event, session)

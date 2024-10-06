@@ -23,7 +23,7 @@ class InputName(Frame):
 
     def logic(self, event: Event, session: Session) -> Message:
         session.execute(
-            """UPDATE user
+            """UPDATE users
             SET name = ?
             WHERE chat_id = ?""",
             (

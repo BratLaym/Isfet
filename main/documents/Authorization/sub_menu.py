@@ -5,7 +5,9 @@ from core.utilities.message.keyboard.replyKeyboard import ReplyKeyboard
 from core.utilities.message.message import Message
 from core.utilities.scripts.frame import Frame
 from core.utilities.scripts.script import Script
+from main.documents.Menu.Menu import Menu
 from main.objects.user import User
+from main.static.roles import ADMIN
 
 
 class SubMenu(Frame):
@@ -19,7 +21,7 @@ class SubMenu(Frame):
                 ),
                 Script(
                     self.pressButton,
-                    r"(Изменить)|(Ввести)\s\w+.*"
+                    r"((Изменить)|(Ввести))\s\w+.*"
                 )
             ]
         )
@@ -61,7 +63,7 @@ class SubMenu(Frame):
         event: Event,
         session: Session
     ) -> list[Message] | Message:
-        query: str = """SELECT * FROM user WHERE chat_id = ?"""
+        query: str = """SELECT * FROM users WHERE chat_id = ?"""
         res_select: Any = session.execute(query, (event.chat_id,)).fetchone()
         user: User = User(*res_select)
 
@@ -72,12 +74,32 @@ class SubMenu(Frame):
             return Message("Введены не все данные", event.chat_id)
 
         session.execute(
-            """UPDATE user
-            SET doc = ?
-            WHERE chat_id =?""",
-            ("WaitVerefity", event.chat_id)
-            )
+            """
+            UPDATE users
+            SET verefity = -1
+            WHERE chat_id = ?
+            """,
+            (event.chat_id,)
+        )
         session.set(event.chat_id, "frame", None)
+
+        if (user.id_ == 1):
+            session.execute(
+                """
+                INSERT INTO users_roles
+                VALUES (?, ?)
+                """,
+                (user.id_, ADMIN)
+            )
+            session.execute(
+                """
+                UPDATE users
+                SET verefity = 1
+                WHERE chat_id = ?
+                """,
+                (event.chat_id,)
+            )
+            return Menu().start(event, session)
 
         return Message(
             "Данные успешно сохранены, ожидайте верефикации",

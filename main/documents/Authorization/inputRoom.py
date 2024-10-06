@@ -24,7 +24,7 @@ class InputRoom(Frame):
     def logic(self, event: Event, session: Session) -> Message:
         data: str = event.data.upper().replace(" ", "")
         session.execute(
-            """UPDATE user
+            """UPDATE users
             SET block = ?, room = ?
             WHERE chat_id = ?""",
             (data[:-1], data[-1], event.chat_id)

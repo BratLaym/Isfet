@@ -1,15 +1,17 @@
+from core.controll_data.session import Session
+
+
 class User:
-    sql = """"id"	INTEGER NOT NULL UNIQUE,
-"verefity"  BOOLEAN NOT NULL DEFAULT FALSE,
-"chat_id"	INTEGER NOT NULL UNIQUE,
-"tg"	TEXT NOT NULL UNIQUE,
-"doc" TEXT NOT NULL DEFAULT 'Root',
-"name"  TEXT,
-"gender"    TEXT,
-"letter_class"  TEXT,
-"block"	INTEGER,
-"room"	TEXT,
-PRIMARY KEY("id")"""
+    sql = """id	INTEGER NOT NULL UNIQUE,
+verefity  BOOLEAN NOT NULL DEFAULT FALSE,
+chat_id	INTEGER NOT NULL UNIQUE,
+tg	TEXT NOT NULL UNIQUE,
+name  TEXT,
+gender    TEXT,
+letter_class  TEXT,
+block	INTEGER,
+room	TEXT,
+PRIMARY KEY(id)"""
 
     def __init__(
         self,
@@ -17,7 +19,6 @@ PRIMARY KEY("id")"""
         verefity: bool,
         chat_id: int,
         tg: str,
-        area: str,
         name: str | None,
         gender: int | None,
         letter: str | None,
@@ -28,7 +29,6 @@ PRIMARY KEY("id")"""
         self.verefity: bool = verefity
         self.chat_id: int = chat_id
         self.tg: str = tg
-        self.area: str = area
         self.name: str | None = name
         self.gender: int | None = gender
         self.letter: str | None = letter
@@ -43,3 +43,13 @@ PRIMARY KEY("id")"""
             str(self.block) + self.room if (self.room) else None
         ]:
             yield value
+
+    def roles(self, session: Session):
+        return session.execute(
+            """
+            SELECT * FROM roles AS r
+            JOIN users_roles AS ur ON s.id = ur.role_id
+            WHERE ur.user_id = ?
+            """,
+            (self.id_,)
+        ).fetchall()

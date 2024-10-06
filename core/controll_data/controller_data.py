@@ -15,6 +15,7 @@ class ControllerData(metaclass=Singleton):
     def _create_db(self, tables: dict[str, str]):
         session = self.create_session()
         for name, table in tables.items():
+            print("create:", name)
             session.execute(
                 f"CREATE TABLE IF NOT EXISTS {name} ({table});"
             )

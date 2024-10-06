@@ -23,7 +23,7 @@ class InputGender(Frame):
 
     def logic(self, event: Event, session: Session) -> Message:
         session.execute(
-            """UPDATE user
+            """UPDATE users
             SET gender = ?
             WHERE chat_id = ?""",
             (event.data.upper(), event.chat_id)
