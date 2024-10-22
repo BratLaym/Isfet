@@ -33,7 +33,7 @@ class Document(metaclass=Singleton):
         frame: str | None = None,
         value: str = "",
         handwritten: bool | None = None
-     ) -> Script:
+     ) -> Script | None:
         if (frame is None):
             return self.start_script
         result: Frame | None = self._frames.get(frame)

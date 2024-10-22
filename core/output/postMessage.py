@@ -8,7 +8,7 @@ from core.utilities.message.message import Message
 class PostMessages(metaclass=Singleton):
     def __init__(self) -> None:
         load_dotenv(find_dotenv())
-        self.telegrmUrl: str = environ.get("TELEGRAM_BOT_ROOT_URL")
+        self.telegrmUrl: str = str(environ.get("TELEGRAM_BOT_ROOT_URL"))
 
     def sendMessages(self, messages: list[Message]) -> None:
         for message in messages:

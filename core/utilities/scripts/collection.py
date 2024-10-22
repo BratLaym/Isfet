@@ -22,7 +22,11 @@ class Collection(metaclass=Singleton):
         self,
         document: str | None = None
     ) -> Document:
-        result = self._documents.get(document)
+        result: None | Document
+        if (document is None):
+            result = None
+        else:
+            result = self._documents.get(document)
         if (result is None):
             result = self._default_document
         return result

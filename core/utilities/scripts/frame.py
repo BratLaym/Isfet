@@ -12,7 +12,7 @@ class Frame:
         self._default_script = default_script
         self.name: str = name
 
-    def find(self, value: str, handwritten: bool) -> Script | None:
+    def find(self, value: str, handwritten: bool | None) -> Script | None:
         for script in self._scripts:
             if (script.test(value, handwritten)):
                 return script

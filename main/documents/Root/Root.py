@@ -39,5 +39,5 @@ class Root(Document):
         if (verefity == 1):
             return Menu().start(event, session)
         if (verefity == -1):
-            return WaitVerefity.start(event, session)
+            return WaitVerefity().start(event, session)
         return Authorization().start(event, session)

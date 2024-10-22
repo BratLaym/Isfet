@@ -81,6 +81,7 @@ class SubMenu(Frame):
             """,
             (event.chat_id,)
         )
+        session.set(event.chat_id, "doc", None)
         session.set(event.chat_id, "frame", None)
 
         if (user.id_ == 1):

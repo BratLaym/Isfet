@@ -9,7 +9,7 @@ from core.controll_data.session import Session
 class ControllerData(metaclass=Singleton):
     def __init__(self, tables: dict[str, str] = dict()) -> None:
         load_dotenv(find_dotenv())
-        self._connection = connect(environ.get("PATH_DB"))
+        self._connection = connect(str(environ.get("PATH_DB")))
         self._create_db(tables)
 
     def _create_db(self, tables: dict[str, str]):

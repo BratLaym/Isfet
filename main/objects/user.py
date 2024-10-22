@@ -6,7 +6,7 @@ class User:
 verefity  BOOLEAN NOT NULL DEFAULT FALSE,
 chat_id	INTEGER NOT NULL UNIQUE,
 tg	TEXT NOT NULL UNIQUE,
-name  TEXT,
+name  TEXT UNIQUE,
 gender    TEXT,
 letter_class  TEXT,
 block	INTEGER,

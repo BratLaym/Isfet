@@ -11,7 +11,7 @@ def setUpDefinerPosition():
             return "Root", None
         else:
             frame = session.get(event.chat_id, "frame")
-            print(doc.split('/')[-1], frame)
+            print(doc.split('/')[-1], frame, event.chat_id, event.user_tg)
             return doc.split('/')[-1], frame
 
     DefinerPosition(define_position)
